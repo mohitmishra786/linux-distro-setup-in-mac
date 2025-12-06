@@ -1,22 +1,226 @@
-# Docker volumes and temporary files
-code/*.o
-code/*.so
-code/*.a
+# Compiled executables (without extension) - but allow .c and .h source files
+code/ch*_*
+!code/ch*_*.c
+!code/ch*_*.h
+code/*_test
+!code/*_test.c
+!code/*_test.h
+code/*_debug
+!code/*_debug.c
+!code/*_debug.h
+code/*_prod
+!code/*_prod.c
+!code/*_prod.h
+code/*_final
+!code/*_final.c
+!code/*_final.h
+code/*_custom
+!code/*_custom.c
+!code/*_custom.h
+code/*_default
+!code/*_default.c
+!code/*_default.h
+code/*_observer
+!code/*_observer.c
+!code/*_observer.h
+code/*_explorer
+!code/*_explorer.c
+!code/*_explorer.h
+code/*_resolution
+!code/*_resolution.c
+!code/*_resolution.h
+code/*_perf
+!code/*_perf.c
+!code/*_perf.h
+code/*_dynamic
+!code/*_dynamic.c
+!code/*_dynamic.h
+code/application
+!code/application.c
+code/program
+!code/program.c
+code/test
+!code/test.c
+code/link_observer
+!code/link_observer.c
+code/memory_test_*
+!code/memory_test_*.c
+code/performance_test
+!code/performance_test.c
+code/analyze_layout
+!code/analyze_layout.c
+code/example
+code/example_*
+!code/example_*.c
 code/hello
-code/hello-*
+code/hello_*
+!code/hello_*.c
+
+# Object files
+code/*.o
+*.o
+
+# Shared libraries
+code/*.so
+*.so
+code/lib*.so
+lib*.so
+
+# Static libraries
+code/*.a
+*.a
+code/lib*.a
+lib*.a
+
+# Compiled binaries with common extensions
 code/*.out
+*.out
+code/*.exe
+*.exe
+code/*.bin
+*.bin
+
+# Windows-specific files
+code/*.dll
+*.dll
+code/*.lib
+*.lib
+code/*.exp
+*.exp
+code/*.def
+*.def
+code/*.manifest
+*.manifest
+code/*.rc
+*.rc
+
+# Debug files
+code/*.dSYM
+*.dSYM
+code/*.pdb
+*.pdb
+
+# Core dumps
+code/core
+core
+code/core.*
+core.*
+
+# Temporary files
+code/*~
+*~
+code/*.tmp
+*.tmp
+code/*.bak
+*.bak
+code/*.swp
+*.swp
+code/*.swo
+*.swo
+
+# Build directories
+code/build/
+build/
+code/dist/
+dist/
+code/.build/
+.build/
 
 # IDE files
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# chapters files
+# Chapter markdown files
 chapter-*.md
 
+# Markdown files in code folder
+code/*.md
+
+# Email drafts
+email-reply.md
+*.eml
+
+# Log files
+*.log
+code/*.log
+
+# Coverage reports
+code/coverage/
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# Valgrind output
+code/*.vg
+*.vg
+code/valgrind-*
+valgrind-*
+
+# GDB files
+code/.gdb_history
+.gdb_history
+code/core.*
+core.*
+
+# Compiled test files
+code/test_*
+code/*_test_*
+
+# Temporary C files (if any)
+code/temp_*.c
+code/tmp_*.c
+
+# Compiled examples
+code/example_*
+code/sample_*
+code/demo_*
+
+# Linker scripts output (if any compiled)
+code/*.ld.bak
+*.ld.bak
+
+# Backup files
+code/*~
+*~
+code/*.orig
+*.orig
+
+# Python cache (if any Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Node modules (if any)
+node_modules/
+package-lock.json
+
+# Docker volumes and temporary files
+.docker/
+docker-compose.override.yml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Editor backup files
+*~
+*.swp
+*.swo
+.#*
+\#*#
