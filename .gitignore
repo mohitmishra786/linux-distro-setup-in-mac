@@ -1,0 +1,22 @@
+# Docker volumes and temporary files
+code/*.o
+code/*.so
+code/*.a
+code/hello
+code/hello-*
+code/*.out
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# chapters files
+chapter-*.md
+

@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  ubuntu:
+    image: ubuntu:22.04
+    container_name: linux-book-ubuntu
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    networks:
+      - linux-book-network
+
+  ubuntu-latest:
+    image: ubuntu:latest
+    container_name: linux-book-ubuntu-latest
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    networks:
+      - linux-book-network
+
+  debian:
+    image: debian:bookworm
+    container_name: linux-book-debian
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    networks:
+      - linux-book-network
+
+  fedora:
+    image: fedora:latest
+    container_name: linux-book-fedora
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  alpine:
+    image: alpine:latest
+    container_name: linux-book-alpine
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  archlinux:
+    image: archlinux:latest
+    container_name: linux-book-archlinux
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  centos:
+    image: centos:7
+    container_name: linux-book-centos
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+networks:
+  linux-book-network:
+    driver: bridge
+
