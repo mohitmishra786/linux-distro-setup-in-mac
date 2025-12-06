@@ -32,9 +32,20 @@ if ! docker ps | grep -q "$CONTAINER_NAME"; then
     docker exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
 fi
 
+# Get the basename of the source file (relative to code directory)
+SOURCE_BASENAME=$(basename "$SOURCE_FILE")
+SOURCE_DIR=$(dirname "$SOURCE_FILE")
+# If source file is in code/ directory, adjust path
+if [[ "$SOURCE_FILE" == code/* ]]; then
+    SOURCE_BASENAME=$(basename "$SOURCE_FILE")
+    SOURCE_PATH="/workspace/$SOURCE_BASENAME"
+else
+    SOURCE_PATH="/workspace/$SOURCE_FILE"
+fi
+
 # Compile
 echo "Compiling $SOURCE_FILE in $DISTRO..."
-docker exec -w /workspace "$CONTAINER_NAME" gcc -o "$OUTPUT_NAME" "$SOURCE_FILE"
+docker exec -w /workspace "$CONTAINER_NAME" gcc -o "$OUTPUT_NAME" "$SOURCE_PATH"
 
 if [ $? -eq 0 ]; then
     echo "Compilation successful!"

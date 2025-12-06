@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   ubuntu:
     image: ubuntu:22.04
+    platform: linux/amd64
     container_name: linux-book-ubuntu
     volumes:
       - ./code:/workspace
@@ -16,6 +15,7 @@ services:
 
   ubuntu-latest:
     image: ubuntu:latest
+    platform: linux/amd64
     container_name: linux-book-ubuntu-latest
     volumes:
       - ./code:/workspace
@@ -29,6 +29,7 @@ services:
 
   debian:
     image: debian:bookworm
+    platform: linux/amd64
     container_name: linux-book-debian
     volumes:
       - ./code:/workspace
@@ -42,6 +43,7 @@ services:
 
   fedora:
     image: fedora:latest
+    platform: linux/amd64
     container_name: linux-book-fedora
     volumes:
       - ./code:/workspace
@@ -64,6 +66,7 @@ services:
 
   archlinux:
     image: archlinux:latest
+    platform: linux/amd64
     container_name: linux-book-archlinux
     volumes:
       - ./code:/workspace
@@ -75,6 +78,7 @@ services:
 
   centos:
     image: centos:7
+    platform: linux/amd64
     container_name: linux-book-centos
     volumes:
       - ./code:/workspace
