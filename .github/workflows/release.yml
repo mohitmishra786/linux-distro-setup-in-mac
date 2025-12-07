@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Create Release Archive
+        run: |
+          mkdir -p release
+          # Copy files excluding code folder
+          rsync -av --exclude='code/' --exclude='.git/' --exclude='.github/' \
+            --exclude='*.md' --include='README.md' \
+            . release/linux-distro-setup-in-mac-v${GITHUB_REF#refs/tags/v}/
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+          body_path: RELEASE_NOTES.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

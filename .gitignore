@@ -213,6 +213,10 @@ package-lock.json
 .docker/
 docker-compose.override.yml
 
+# Code folder - exclude from releases (users will add their own code)
+code/
+!code/.gitkeep
+
 # Environment files
 .env
 .env.local

@@ -2,14 +2,35 @@
 
 A Docker-based setup for testing C code across multiple Linux distributions from macOS. Perfect for book writing, cross-distribution testing, and ensuring code compatibility.
 
+> **Note**: Currently supports **C programming language only**. Support for additional languages (C++, Rust, Go, etc.) is planned for future releases.
+
 ## Supported Distributions
 
+### Debian-based
 - **Ubuntu** (22.04 and latest)
 - **Debian** (Bookworm)
+- **Kali Linux** (Rolling)
+
+### RPM-based
 - **Fedora** (Latest)
-- **Alpine Linux** (Latest)
-- **Arch Linux** (Latest)
 - **CentOS** (7)
+- **Rocky Linux** (Latest)
+- **AlmaLinux** (Latest)
+- **Oracle Linux** (9)
+- **Amazon Linux** (2023)
+
+### Other Package Managers
+- **Alpine Linux** (Latest) - apk
+- **Arch Linux** (Latest) - pacman
+- **openSUSE Leap** (Latest) - zypper
+- **openSUSE Tumbleweed** (Latest) - zypper
+- **Gentoo** (Latest) - emerge
+
+**Total: 16 Linux distributions**
+
+## Documentation
+
+- **[Usage Guide](USAGE_GUIDE.md)** - Comprehensive guide on integrating and using this environment in your projects
 
 ## Quick Start
 

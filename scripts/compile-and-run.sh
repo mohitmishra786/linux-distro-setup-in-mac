@@ -9,7 +9,9 @@ if [ -z "$DISTRO" ] || [ -z "$SOURCE_FILE" ]; then
     echo "Usage: $0 <distro> <source_file> [output_name]"
     echo ""
     echo "Available distributions:"
-    echo "  ubuntu, ubuntu-latest, debian, fedora, alpine, archlinux, centos"
+    echo "  ubuntu, ubuntu-latest, debian, fedora, alpine, archlinux, centos,"
+    echo "  opensuse-leap, opensuse-tumbleweed, rocky-linux, almalinux,"
+    echo "  oraclelinux, amazonlinux, gentoo, kali-linux"
     echo ""
     echo "Examples:"
     echo "  $0 ubuntu hello.c"
@@ -29,7 +31,17 @@ if ! docker ps | grep -q "$CONTAINER_NAME"; then
     echo "Starting container $CONTAINER_NAME..."
     docker-compose up -d "$DISTRO"
     sleep 2
-    docker exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
+fi
+
+# Check if gcc is available, if not, set up the distro
+if ! docker exec "$CONTAINER_NAME" which gcc > /dev/null 2>&1; then
+    echo "Setting up $DISTRO (installing build tools)..."
+    # Alpine uses sh instead of bash
+    if [ "$DISTRO" = "alpine" ]; then
+        docker exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
+    else
+        docker exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
+    fi
 fi
 
 # Get the basename of the source file (relative to code directory)

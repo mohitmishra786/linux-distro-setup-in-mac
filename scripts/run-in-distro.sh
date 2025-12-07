@@ -9,7 +9,9 @@ if [ -z "$DISTRO" ] || [ -z "$COMMAND" ]; then
     echo "Usage: $0 <distro> <command>"
     echo ""
     echo "Available distributions:"
-    echo "  ubuntu, ubuntu-latest, debian, fedora, alpine, archlinux, centos"
+    echo "  ubuntu, ubuntu-latest, debian, fedora, alpine, archlinux, centos,"
+    echo "  opensuse-leap, opensuse-tumbleweed, rocky-linux, almalinux,"
+    echo "  oraclelinux, amazonlinux, gentoo, kali-linux"
     echo ""
     echo "Examples:"
     echo "  $0 ubuntu gcc --version"
@@ -28,7 +30,12 @@ if ! docker ps | grep -q "$CONTAINER_NAME"; then
     
     # Setup the distro if not already done
     echo "Setting up $DISTRO..."
-    docker exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
+    # Alpine uses sh instead of bash
+    if [ "$DISTRO" = "alpine" ]; then
+        docker exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
+    else
+        docker exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
+    fi
 fi
 
 # Execute the command
