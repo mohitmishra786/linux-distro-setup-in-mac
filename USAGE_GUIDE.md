@@ -5,11 +5,12 @@ This guide will help you integrate and use the Linux Distro Testing Environment 
 ## Table of Contents
 
 1. [Quick Start](#quick-start)
-2. [Setting Up Your Project](#setting-up-your-project)
-3. [Basic Usage](#basic-usage)
-4. [Advanced Usage](#advanced-usage)
-5. [Integration Examples](#integration-examples)
-6. [Troubleshooting](#troubleshooting)
+2. [VS Code Extension Usage](#vs-code-extension-usage)
+3. [Setting Up Your Project](#setting-up-your-project)
+4. [Basic Usage](#basic-usage)
+5. [Advanced Usage](#advanced-usage)
+6. [Integration Examples](#integration-examples)
+7. [Troubleshooting](#troubleshooting)
 
 ## Quick Start
 
@@ -45,6 +46,119 @@ make setup
 ```
 
 This will install GCC, make, binutils, and GDB in all Linux distributions.
+
+## VS Code Extension Usage
+
+### Installation
+
+1. **Install the Extension**:
+   - Open VS Code
+   - Go to Extensions (Cmd+Shift+X / Ctrl+Shift+X)
+   - Search for "Linux Distro Testing" or "C Cross-Distro Testing"
+   - Click Install
+
+2. **Prerequisites Check**:
+   - The extension will check if Docker Desktop is running
+   - If not, you'll be prompted to start it
+
+3. **Initial Setup** (one-time):
+   - Open Command Palette (Cmd+Shift+P / Ctrl+Shift+P)
+   - Run: `Linux Distro Testing: Setup All Distributions`
+   - Wait for build tools to install (may take a few minutes)
+
+### Using the Extension
+
+#### Method 1: Right-Click Context Menu
+
+1. **Open a C file** in VS Code
+2. **Right-click** on the file in Explorer or editor
+3. Select from menu:
+   - `Compile & Run in Ubuntu`
+   - `Compile & Run in Fedora`
+   - `Compile & Run in All Distributions`
+   - `Test Across All Distributions`
+
+#### Method 2: Command Palette
+
+1. **Open Command Palette** (Cmd+Shift+P / Ctrl+Shift+P)
+2. Type `Linux Distro` to see available commands:
+   - `Linux Distro Testing: Compile & Run Current File`
+   - `Linux Distro Testing: Compile & Run in Ubuntu`
+   - `Linux Distro Testing: Compile & Run in Fedora`
+   - `Linux Distro Testing: Test in All Distributions`
+   - `Linux Distro Testing: Select Distribution`
+   - `Linux Distro Testing: Setup Distribution`
+
+#### Method 3: Status Bar
+
+- Click the distribution name in the status bar (bottom right)
+- Select a distribution to test in
+- Use the play button (▶) to compile and run current file
+
+#### Method 4: Terminal Integration
+
+The extension adds tasks you can run:
+
+1. **Open Terminal** (Ctrl+` / Cmd+`)
+2. **Run Task** (Cmd+Shift+P → "Run Task")
+3. Select:
+   - `Linux Distro: Compile & Run (Ubuntu)`
+   - `Linux Distro: Compile & Run (All)`
+   - `Linux Distro: Setup All`
+
+### Extension Features
+
+- ✅ **One-click compilation** - Right-click any C file to compile and run
+- ✅ **Multi-distro testing** - Test across all 16 Linux distributions
+- ✅ **Status bar integration** - Quick access to distribution selection
+- ✅ **Terminal output** - See compilation results in VS Code terminal
+- ✅ **Error highlighting** - Compilation errors shown in Problems panel
+- ✅ **Quick actions** - Fast access via Command Palette
+
+### Configuration
+
+The extension uses settings in `.vscode/settings.json`:
+
+```json
+{
+  "linuxDistroTesting.dockerComposePath": "./docker-compose.yml",
+  "linuxDistroTesting.scriptsPath": "./scripts",
+  "linuxDistroTesting.defaultDistro": "ubuntu",
+  "linuxDistroTesting.autoSetup": true
+}
+```
+
+### Example Workflow in VS Code
+
+1. **Create a C file** (`hello.c`):
+   ```c
+   #include <stdio.h>
+   int main() {
+       printf("Hello from Linux!\n");
+       return 0;
+   }
+   ```
+
+2. **Right-click** on `hello.c` → `Compile & Run in All Distributions`
+
+3. **View results** in the Output panel or Terminal
+
+4. **Check status** - Success/failure indicators in status bar
+
+### Troubleshooting Extension
+
+**Extension not working?**
+- Check Docker Desktop is running
+- Verify containers are started: `docker ps`
+- Run: `Linux Distro Testing: Setup All Distributions`
+
+**Can't find commands?**
+- Reload VS Code window (Cmd+R / Ctrl+R)
+- Check extension is enabled in Extensions panel
+
+**Permission errors?**
+- Make sure scripts are executable: `chmod +x scripts/*.sh`
+- Check Docker has proper permissions
 
 ## Setting Up Your Project
 

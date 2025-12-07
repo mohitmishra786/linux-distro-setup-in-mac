@@ -1,8 +1,14 @@
 # Linux Distro Testing Environment
 
-A Docker-based setup for testing C code across multiple Linux distributions from macOS. Perfect for book writing, cross-distribution testing, and ensuring code compatibility.
+A Docker-based setup for testing code across multiple Linux distributions from macOS. Perfect for book writing, cross-distribution testing, and ensuring code compatibility.
+
+**Maintainer**: Mohit Mishra
 
 > **Note**: Currently supports **C programming language only**. Support for additional languages (C++, Rust, Go, etc.) is planned for future releases.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Supported Distributions
 
@@ -31,6 +37,7 @@ A Docker-based setup for testing C code across multiple Linux distributions from
 ## Documentation
 
 - **[Usage Guide](USAGE_GUIDE.md)** - Comprehensive guide on integrating and using this environment in your projects
+- **[VS Code Extension Plan](VSCODE_EXTENSION_PLAN.md)** - Development plan for VS Code extension (coming soon)
 
 ## Quick Start
 

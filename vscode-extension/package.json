@@ -1,0 +1,152 @@
+{
+  "name": "distrolab",
+  "displayName": "DistroLab",
+  "description": "Test your code across 16 Linux distributions using Docker. Supports C, C++, Rust, Go, and more.",
+  "version": "1.0.0",
+  "publisher": "mohitmishra",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mohitmishra786/linux-distro-setup-in-mac.git"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Testing"
+  ],
+  "keywords": [
+    "linux",
+    "distro",
+    "docker",
+    "testing",
+    "cross-platform",
+    "c",
+    "c++",
+    "rust",
+    "go",
+    "compilation"
+  ],
+  "icon": "distrolab.png",
+  "activationEvents": [
+    "onLanguage:c",
+    "onLanguage:cpp",
+    "onLanguage:rust",
+    "onLanguage:go"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "distrolab.compileRun",
+        "title": "Compile & Run Current File"
+      },
+      {
+        "command": "distrolab.compileRunDistro",
+        "title": "Compile & Run in Distribution..."
+      },
+      {
+        "command": "distrolab.testAll",
+        "title": "Test in All Distributions"
+      },
+      {
+        "command": "distrolab.setup",
+        "title": "Setup All Distributions"
+      },
+      {
+        "command": "distrolab.selectDistro",
+        "title": "Select Default Distribution"
+      },
+      {
+        "command": "distrolab.startContainers",
+        "title": "Start Docker Containers"
+      },
+      {
+        "command": "distrolab.stopContainers",
+        "title": "Stop Docker Containers"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "distrolab.compileRun",
+          "when": "resourceExtname == '.c' || resourceExtname == '.cpp' || resourceExtname == '.rs' || resourceExtname == '.go'",
+          "group": "distrolab"
+        },
+        {
+          "command": "distrolab.testAll",
+          "when": "resourceExtname == '.c' || resourceExtname == '.cpp' || resourceExtname == '.rs' || resourceExtname == '.go'",
+          "group": "distrolab"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "distrolab.compileRun",
+          "when": "resourceExtname == '.c' || resourceExtname == '.cpp' || resourceExtname == '.rs' || resourceExtname == '.go'",
+          "group": "distrolab"
+        },
+        {
+          "command": "distrolab.testAll",
+          "when": "resourceExtname == '.c' || resourceExtname == '.cpp' || resourceExtname == '.rs' || resourceExtname == '.go'",
+          "group": "distrolab"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "DistroLab",
+      "properties": {
+        "distrolab.dockerComposePath": {
+          "type": "string",
+          "default": "./docker-compose.yml",
+          "description": "Path to docker-compose.yml file (relative to workspace root)"
+        },
+        "distrolab.scriptsPath": {
+          "type": "string",
+          "default": "./scripts",
+          "description": "Path to scripts directory (relative to workspace root)"
+        },
+        "distrolab.defaultDistro": {
+          "type": "string",
+          "default": "ubuntu",
+          "enum": [
+            "ubuntu",
+            "ubuntu-latest",
+            "debian",
+            "fedora",
+            "alpine",
+            "archlinux",
+            "centos",
+            "opensuse-leap",
+            "opensuse-tumbleweed",
+            "rocky-linux",
+            "almalinux",
+            "oraclelinux",
+            "amazonlinux",
+            "gentoo",
+            "kali-linux"
+          ],
+          "description": "Default Linux distribution to use for compilation"
+        },
+        "distrolab.autoSetup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically setup distributions if build tools are missing"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^2.32.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -58,9 +58,13 @@ None (initial release)
 
 N/A (initial release)
 
+### Maintainer
+
+**Mohit Mishra** - Project maintainer and developer
+
 ### Contributors
 
-Initial release by the project maintainers.
+Initial release by Mohit Mishra.
 
 ---
 
