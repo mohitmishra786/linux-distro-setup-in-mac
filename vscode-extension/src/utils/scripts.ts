@@ -39,7 +39,23 @@ export async function executeScript(
         outputChannel.append(output);
         return { success: true, output };
     } catch (error: any) {
-        const errorOutput = error.stdout + '\n' + error.stderr;
+        // Handle undefined stdout/stderr properties with fallback values (like in setup.ts)
+        const errorStdout = error.stdout || '';
+        const errorStderr = error.stderr || '';
+        const errorMessage = error.message || '';
+        
+        // Build error output: stdout, then stderr, then message if no stdout/stderr
+        let errorOutput = errorStdout;
+        if (errorStderr) {
+            errorOutput += (errorOutput ? '\n' : '') + errorStderr;
+        }
+        if (!errorOutput && errorMessage) {
+            errorOutput = errorMessage;
+        }
+        if (!errorOutput) {
+            errorOutput = 'Unknown error occurred';
+        }
+        
         outputChannel.append(errorOutput);
         return { success: false, output: errorOutput };
     }
@@ -64,4 +80,3 @@ export function isScriptExecutable(scriptPath: string): boolean {
         return false;
     }
 }
-

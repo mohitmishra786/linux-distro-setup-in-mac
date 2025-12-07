@@ -16,7 +16,8 @@ jobs:
           mkdir -p release
           # Copy files excluding code folder
           rsync -av --exclude='code/' --exclude='.git/' --exclude='.github/' \
-            --exclude='*.md' --include='README.md' \
+            --exclude='*.md' --include='README.md' --include='LICENSE' \
+            --exclude='vscode-extension/' \
             . release/linux-distro-setup-in-mac-v${GITHUB_REF#refs/tags/v}/
           
       - name: Create Release
@@ -24,6 +25,7 @@ jobs:
         with:
           files: release/*
           body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
