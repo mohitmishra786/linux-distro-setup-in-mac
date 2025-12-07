@@ -2,6 +2,13 @@
 
 All notable changes to the "DistroLab" extension will be documented in this file.
 
+## [1.0.1] - 2025-12-07
+
+### Fixed
+- Fixed error handling in script execution to properly handle undefined stdout/stderr properties
+- Prevents "undefined\nundefined" string in error output
+- Improves error visibility and debugging
+
 ## [1.0.0] - 2025-12-07
 
 ### Added
