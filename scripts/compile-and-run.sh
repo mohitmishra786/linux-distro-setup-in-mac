@@ -1,6 +1,26 @@
 #!/bin/bash
 # Compile and run a C program in a specific Linux distribution
 
+
+# Detect container runtime
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RUNTIME=$("$SCRIPT_DIR/detect-runtime.sh")
+if [ $? -ne 0 ]; then
+    echo "$RUNTIME"
+    exit 1
+fi
+
+# Set compose command
+if [ "$RUNTIME" = "docker" ]; then
+    COMPOSE_CMD="$COMPOSE_CMD"
+elif [ "$RUNTIME" = "podman" ]; then
+    if command -v podman-compose &> /dev/null; then
+        COMPOSE_CMD="podman-compose"
+    else
+        COMPOSE_CMD="podman compose"
+    fi
+fi
+
 DISTRO=$1
 SOURCE_FILE=$2
 OUTPUT_NAME=${3:-$(basename "$SOURCE_FILE" .c)}
@@ -27,20 +47,20 @@ fi
 CONTAINER_NAME="linux-book-${DISTRO}"
 
 # Ensure container is running
-if ! docker ps | grep -q "$CONTAINER_NAME"; then
+if ! $RUNTIME ps | grep -q "$CONTAINER_NAME"; then
     echo "Starting container $CONTAINER_NAME..."
-    docker-compose up -d "$DISTRO"
+    $COMPOSE_CMD up -d "$DISTRO"
     sleep 2
 fi
 
 # Check if gcc is available, if not, set up the distro
-if ! docker exec "$CONTAINER_NAME" which gcc > /dev/null 2>&1; then
+if ! $RUNTIME exec "$CONTAINER_NAME" which gcc > /dev/null 2>&1; then
     echo "Setting up $DISTRO (installing build tools)..."
     # Alpine uses sh instead of bash
     if [ "$DISTRO" = "alpine" ]; then
-        docker exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
+        $RUNTIME exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
     else
-        docker exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
+        $RUNTIME exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
     fi
 fi
 
@@ -57,14 +77,14 @@ fi
 
 # Compile
 echo "Compiling $SOURCE_FILE in $DISTRO..."
-docker exec -w /workspace "$CONTAINER_NAME" gcc -o "$OUTPUT_NAME" "$SOURCE_PATH"
+$RUNTIME exec -w /workspace "$CONTAINER_NAME" gcc -o "$OUTPUT_NAME" "$SOURCE_PATH"
 
 if [ $? -eq 0 ]; then
     echo "Compilation successful!"
     echo ""
     echo "Running $OUTPUT_NAME..."
     echo "---"
-    docker exec -w /workspace "$CONTAINER_NAME" ./"$OUTPUT_NAME"
+    $RUNTIME exec -w /workspace "$CONTAINER_NAME" ./"$OUTPUT_NAME"
     echo "---"
 else
     echo "Compilation failed!"
