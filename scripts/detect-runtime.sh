@@ -3,9 +3,19 @@
 
 # Check environment variable first
 if [ -n "$CONTAINER_RUNTIME" ]; then
-    echo "$CONTAINER_RUNTIME"
-    exit 0
-fi
+    # Validate that the specified runtime exists and is usable
+    if command -v "$CONTAINER_RUNTIME" &> /dev/null; then
+        if $CONTAINER_RUNTIME ps &> /dev/null 2>&1; then
+            echo "$CONTAINER_RUNTIME"
+            exit 0
+        else
+            echo "Error: $CONTAINER_RUNTIME is installed but not running" >&2
+            exit 1
+        fi
+    else
+        echo "Error: CONTAINER_RUNTIME is set to '$CONTAINER_RUNTIME' but command not found" >&2
+        exit 1
+    fi
 
 # Auto-detect: prefer Docker if both are available
 if command -v docker &> /dev/null; then
