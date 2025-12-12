@@ -4,12 +4,12 @@ Test your code across 16 Linux distributions using Docker directly from VS Code.
 
 ## Features
 
-- ✅ **One-click compilation** - Right-click any C/C++/Rust/Go file to compile and run
-- ✅ **Multi-distro testing** - Test across all 16 Linux distributions
-- ✅ **Status bar integration** - Quick access to distribution selection
-- ✅ **Terminal output** - See compilation results in VS Code terminal
-- ✅ **Error highlighting** - Compilation errors shown in Problems panel
-- ✅ **Quick actions** - Fast access via Command Palette
+- **One-click compilation** - Right-click any C/C++/Rust/Go file to compile and run
+- **Multi-distro testing** - Test across all 16 Linux distributions
+- **Status bar integration** - Quick access to distribution selection
+- **Terminal output** - See compilation results in VS Code terminal
+- **Error highlighting** - Compilation errors shown in Problems panel
+- **Quick actions** - Fast access via Command Palette
 
 ## Prerequisites
 

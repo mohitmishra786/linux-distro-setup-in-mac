@@ -25,5 +25,4 @@ echo "4. Copy content from RELEASE_NOTES.md"
 echo "5. Optionally attach: vscode-extension/distrolab-1.0.0.vsix"
 echo "6. Click 'Publish release'"
 echo ""
-echo "🎉 Release complete!"
-
+echo "Release complete!"
