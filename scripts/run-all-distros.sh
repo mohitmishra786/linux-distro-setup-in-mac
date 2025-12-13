@@ -1,6 +1,5 @@
 #!/bin/bash
-# Run a command in all Linux distributions
-# Can also compile and run a C file if provided
+# Run a command across all distributions with progress tracking
 
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <command>"
@@ -9,9 +8,7 @@ if [ $# -eq 0 ]; then
     echo "Examples:"
     echo "  $0 gcc --version"
     echo "  $0 uname -a"
-    echo "  $0 ls -la"
     echo "  $0 --compile code/hello.c"
-    echo "  $0 --compile code/hello.c hello_program"
     exit 1
 fi
 
@@ -34,6 +31,8 @@ if [ "$1" = "--compile" ]; then
     
     SUCCESSFUL=()
     FAILED=()
+    TOTAL=${#DISTROS[@]}
+    CURRENT=0
     
     echo "=========================================="
     echo "Compiling and running $SOURCE_FILE"
@@ -42,15 +41,16 @@ if [ "$1" = "--compile" ]; then
     echo ""
     
     for distro in "${DISTROS[@]}"; do
+        CURRENT=$((CURRENT + 1))
         echo "=========================================="
-        echo "Testing: $distro"
+        echo "[$CURRENT/$TOTAL] Testing: $distro"
         echo "=========================================="
         
         if ./scripts/compile-and-run.sh "$distro" "$SOURCE_FILE" "$OUTPUT_NAME" > /tmp/test_${distro}.log 2>&1; then
-            echo "[SUCCESS] SUCCESS: $distro"
+            echo "[$CURRENT/$TOTAL] $distro [SUCCESS]"
             SUCCESSFUL+=("$distro")
         else
-            echo "[FAILED] FAILED: $distro"
+            echo "[$CURRENT/$TOTAL] $distro [FAILED]"
             FAILED+=("$distro")
             echo "Error log:"
             tail -3 /tmp/test_${distro}.log | grep -v "^$" || tail -3 /tmp/test_${distro}.log
@@ -61,16 +61,16 @@ if [ "$1" = "--compile" ]; then
     echo "=========================================="
     echo "Summary"
     echo "=========================================="
-    echo "Successful: ${#SUCCESSFUL[@]}/${#DISTROS[@]}"
+    echo "Successful: ${#SUCCESSFUL[@]}/$TOTAL"
     for distro in "${SUCCESSFUL[@]}"; do
-        echo "  [SUCCESS] $distro"
+        echo "  [+] $distro"
     done
     
     if [ ${#FAILED[@]} -gt 0 ]; then
         echo ""
-        echo "Failed: ${#FAILED[@]}/${#DISTROS[@]}"
+        echo "Failed: ${#FAILED[@]}/$TOTAL"
         for distro in "${FAILED[@]}"; do
-            echo "  [FAILED] $distro"
+            echo "  [-] $distro"
         done
     fi
     
@@ -82,12 +82,24 @@ fi
 COMMAND="$@"
 
 DISTROS=("ubuntu" "ubuntu-latest" "debian" "fedora" "alpine" "archlinux" "centos" "opensuse-leap" "opensuse-tumbleweed" "rocky-linux" "almalinux" "oraclelinux" "amazonlinux" "gentoo" "kali-linux")
+TOTAL=${#DISTROS[@]}
+CURRENT=0
+
+echo "=========================================="
+echo "Running command across $TOTAL distributions"
+echo "Command: $COMMAND"
+echo "=========================================="
+echo ""
 
 for distro in "${DISTROS[@]}"; do
+    CURRENT=$((CURRENT + 1))
     echo "=========================================="
-    echo "Running in $distro:"
+    echo "[$CURRENT/$TOTAL] Running in $distro"
     echo "=========================================="
     ./scripts/run-in-distro.sh "$distro" "$COMMAND"
     echo ""
 done
 
+echo "=========================================="
+echo "Complete: $TOTAL/$TOTAL distributions processed"
+echo "=========================================="

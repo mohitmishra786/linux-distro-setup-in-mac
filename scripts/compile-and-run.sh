@@ -1,7 +1,6 @@
 #!/bin/bash
 # Compile and run a C program in a specific Linux distribution
 
-
 # Detect container runtime
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNTIME=$("$SCRIPT_DIR/detect-runtime.sh")
@@ -47,21 +46,29 @@ fi
 CONTAINER_NAME="linux-book-${DISTRO}"
 
 # Ensure container is running
+echo "[1/4] Checking container status..."
 if ! $RUNTIME ps | grep -q "$CONTAINER_NAME"; then
-    echo "Starting container $CONTAINER_NAME..."
+    echo "[1/4] Starting container $CONTAINER_NAME..."
     $COMPOSE_CMD up -d "$DISTRO"
     sleep 2
+    echo "[1/4] Container started"
+else
+    echo "[1/4] Container already running"
 fi
 
 # Check if gcc is available, if not, set up the distro
+echo "[2/4] Checking build tools..."
 if ! $RUNTIME exec "$CONTAINER_NAME" which gcc > /dev/null 2>&1; then
-    echo "Setting up $DISTRO (installing build tools)..."
+    echo "[2/4] Installing build tools in $DISTRO..."
     # Alpine uses sh instead of bash
     if [ "$DISTRO" = "alpine" ]; then
         $RUNTIME exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
     else
         $RUNTIME exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
     fi
+    echo "[2/4] Build tools installed"
+else
+    echo "[2/4] Build tools already installed"
 fi
 
 # Get the basename of the source file (relative to code directory)
@@ -76,18 +83,18 @@ else
 fi
 
 # Compile
-echo "Compiling $SOURCE_FILE in $DISTRO..."
+echo "[3/4] Compiling $SOURCE_FILE in $DISTRO..."
 $RUNTIME exec -w /workspace "$CONTAINER_NAME" gcc -o "$OUTPUT_NAME" "$SOURCE_PATH"
 
 if [ $? -eq 0 ]; then
-    echo "Compilation successful!"
+    echo "[3/4] Compilation successful"
     echo ""
-    echo "Running $OUTPUT_NAME..."
+    echo "[4/4] Running $OUTPUT_NAME..."
     echo "---"
     $RUNTIME exec -w /workspace "$CONTAINER_NAME" ./"$OUTPUT_NAME"
     echo "---"
+    echo "[4/4] Execution complete"
 else
-    echo "Compilation failed!"
+    echo "[3/4] Compilation failed"
     exit 1
 fi
-
