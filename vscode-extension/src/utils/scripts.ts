@@ -118,18 +118,19 @@ export async function executeScriptStream(
         let stdoutBuffer = '';
         let stderrBuffer = '';
 
-        // Force unbuffered output
+        // Environment setup for unbuffered output (cross-platform)
         const env = {
             ...process.env,
             PYTHONUNBUFFERED: '1',
-            TERM: 'dumb' // Disable color output from scripts
+            TERM: 'dumb', // Disable color output from scripts
+            // Force unbuffered output in bash
+            BASH_ENV: '',
         };
 
-        // Use direct execution without shell to avoid buffering
-        // Shell adds an extra buffering layer
+        // Direct spawn without script command (works on all platforms)
         const childProcess = spawn(scriptPath, args, {
             cwd: root,
-            shell: false, // Avoid shell buffering
+            shell: true, // Use shell for proper bash execution
             stdio: ['ignore', 'pipe', 'pipe'],
             env: env
         });

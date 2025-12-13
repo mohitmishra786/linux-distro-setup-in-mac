@@ -1,8 +1,8 @@
 {
   "name": "distrolab",
   "displayName": "DistroLab",
-  "description": "Test your code across 16 Linux distributions using Docker. Supports C, C++, Rust, Go, and more.",
-  "version": "1.0.3",
+  "description": "Test your code across 15 Linux distributions using Docker with real-time progress indicators.",
+  "version": "1.0.4",
   "publisher": "mohitmishra",
   "license": "MIT",
   "repository": {

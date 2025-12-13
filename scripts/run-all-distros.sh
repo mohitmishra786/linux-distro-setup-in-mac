@@ -1,6 +1,11 @@
 #!/bin/bash
 # Run a command across all distributions with progress tracking
 
+# Force unbuffered output (cross-platform)
+# This ensures real-time output in VS Code and other environments
+exec 1> >(exec cat)
+exec 2> >(exec cat >&2)
+
 # Source progress indicator library if available
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [ -f "$SCRIPT_DIR/lib/progress.sh" ]; then
@@ -50,15 +55,18 @@ if [ "$1" = "--compile" ]; then
     for distro in "${DISTROS[@]}"; do
         CURRENT=$((CURRENT + 1))
         progress_step "$CURRENT" "$TOTAL" "Testing: $distro"
+        echo ""
         
-        if ./scripts/compile-and-run.sh "$distro" "$SOURCE_FILE" "$OUTPUT_NAME" > /tmp/test_${distro}.log 2>&1; then
+        # Run with direct output (no piping to avoid buffering)
+        ./scripts/compile-and-run.sh "$distro" "$SOURCE_FILE" "$OUTPUT_NAME"
+        EXIT_CODE=$?
+        
+        if [ $EXIT_CODE -eq 0 ]; then
             status_success "$distro compilation and execution"
             SUCCESSFUL+=("$distro")
         else
             status_error "$distro failed"
             FAILED+=("$distro")
-            echo "Error log (last 3 lines):"
-            tail -3 /tmp/test_${distro}.log | grep -v "^$" || tail -3 /tmp/test_${distro}.log
         fi
         echo ""
     done
