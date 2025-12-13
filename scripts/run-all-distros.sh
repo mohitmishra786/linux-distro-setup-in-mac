@@ -1,6 +1,16 @@
 #!/bin/bash
 # Run a command across all distributions with progress tracking
 
+# Source progress indicator library if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/lib/progress.sh" ]; then
+    source "$SCRIPT_DIR/lib/progress.sh"
+fi
+
+# Ensure output is flushed immediately (for real-time progress in VS Code)
+# This helps when stdout is not a TTY
+export PYTHONUNBUFFERED=1
+
 if [ $# -eq 0 ]; then
     echo "Usage: $0 <command>"
     echo "   or: $0 --compile <source_file> [output_name]"
@@ -33,46 +43,38 @@ if [ "$1" = "--compile" ]; then
     FAILED=()
     TOTAL=${#DISTROS[@]}
     CURRENT=0
+    START_TIME=$(date +%s)
     
-    echo "=========================================="
-    echo "Compiling and running $SOURCE_FILE"
-    echo "across all Linux distributions"
-    echo "=========================================="
-    echo ""
+    section_header "Compiling and running $SOURCE_FILE across $TOTAL distributions"
     
     for distro in "${DISTROS[@]}"; do
         CURRENT=$((CURRENT + 1))
-        echo "=========================================="
-        echo "[$CURRENT/$TOTAL] Testing: $distro"
-        echo "=========================================="
+        progress_step "$CURRENT" "$TOTAL" "Testing: $distro"
         
         if ./scripts/compile-and-run.sh "$distro" "$SOURCE_FILE" "$OUTPUT_NAME" > /tmp/test_${distro}.log 2>&1; then
-            echo "[$CURRENT/$TOTAL] $distro [SUCCESS]"
+            status_success "$distro compilation and execution"
             SUCCESSFUL+=("$distro")
         else
-            echo "[$CURRENT/$TOTAL] $distro [FAILED]"
+            status_error "$distro failed"
             FAILED+=("$distro")
-            echo "Error log:"
+            echo "Error log (last 3 lines):"
             tail -3 /tmp/test_${distro}.log | grep -v "^$" || tail -3 /tmp/test_${distro}.log
         fi
         echo ""
     done
     
-    echo "=========================================="
-    echo "Summary"
-    echo "=========================================="
-    echo "Successful: ${#SUCCESSFUL[@]}/$TOTAL"
-    for distro in "${SUCCESSFUL[@]}"; do
-        echo "  [+] $distro"
-    done
+    # Calculate statistics
+    END_TIME=$(date +%s)
+    ELAPSED=$((END_TIME - START_TIME))
     
+    section_summary "Test Results Summary"
+    print_success_list "Successful (${#SUCCESSFUL[@]})" "${SUCCESSFUL[@]}"
     if [ ${#FAILED[@]} -gt 0 ]; then
         echo ""
-        echo "Failed: ${#FAILED[@]}/$TOTAL"
-        for distro in "${FAILED[@]}"; do
-            echo "  [-] $distro"
-        done
+        print_error_list "Failed (${#FAILED[@]})" "${FAILED[@]}"
     fi
+    
+    print_summary_stats "${#SUCCESSFUL[@]}" "${#FAILED[@]}" "$TOTAL" "$ELAPSED"
     
     echo ""
     exit 0
@@ -85,21 +87,16 @@ DISTROS=("ubuntu" "ubuntu-latest" "debian" "fedora" "alpine" "archlinux" "centos
 TOTAL=${#DISTROS[@]}
 CURRENT=0
 
-echo "=========================================="
-echo "Running command across $TOTAL distributions"
+section_header "Running command across $TOTAL distributions"
 echo "Command: $COMMAND"
-echo "=========================================="
 echo ""
 
 for distro in "${DISTROS[@]}"; do
     CURRENT=$((CURRENT + 1))
-    echo "=========================================="
-    echo "[$CURRENT/$TOTAL] Running in $distro"
-    echo "=========================================="
+    progress_step "$CURRENT" "$TOTAL" "Running in $distro"
     ./scripts/run-in-distro.sh "$distro" "$COMMAND"
     echo ""
 done
 
-echo "=========================================="
-echo "Complete: $TOTAL/$TOTAL distributions processed"
-echo "=========================================="
+section_summary "Complete: $TOTAL/$TOTAL distributions processed"
+echo ""
