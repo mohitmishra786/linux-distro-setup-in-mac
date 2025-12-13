@@ -16,6 +16,7 @@ if [ -n "$CONTAINER_RUNTIME" ]; then
         echo "Error: CONTAINER_RUNTIME is set to '$CONTAINER_RUNTIME' but command not found" >&2
         exit 1
     fi
+fi
 
 # Auto-detect: prefer Docker if both are available
 if command -v docker &> /dev/null; then

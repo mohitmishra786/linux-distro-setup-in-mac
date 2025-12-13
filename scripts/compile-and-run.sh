@@ -12,7 +12,7 @@ fi
 
 # Set compose command
 if [ "$RUNTIME" = "docker" ]; then
-    COMPOSE_CMD="$COMPOSE_CMD"
+    COMPOSE_CMD="docker-compose"
 elif [ "$RUNTIME" = "podman" ]; then
     if command -v podman-compose &> /dev/null; then
         COMPOSE_CMD="podman-compose"
