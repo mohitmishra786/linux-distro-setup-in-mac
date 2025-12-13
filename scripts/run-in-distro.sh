@@ -1,6 +1,26 @@
 #!/bin/bash
 # Run a command in a specific Linux distribution container
 
+
+# Detect container runtime
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RUNTIME=$("$SCRIPT_DIR/detect-runtime.sh")
+if [ $? -ne 0 ]; then
+    echo "$RUNTIME"
+    exit 1
+fi
+
+# Set compose command
+if [ "$RUNTIME" = "docker" ]; then
+    COMPOSE_CMD="$COMPOSE_CMD"
+elif [ "$RUNTIME" = "podman" ]; then
+    if command -v podman-compose &> /dev/null; then
+        COMPOSE_CMD="podman-compose"
+    else
+        COMPOSE_CMD="podman compose"
+    fi
+fi
+
 DISTRO=$1
 shift
 COMMAND="$@"
@@ -23,21 +43,21 @@ fi
 CONTAINER_NAME="linux-book-${DISTRO}"
 
 # Check if container is running
-if ! docker ps | grep -q "$CONTAINER_NAME"; then
+if ! $RUNTIME ps | grep -q "$CONTAINER_NAME"; then
     echo "Container $CONTAINER_NAME is not running. Starting it..."
-    docker-compose up -d "$DISTRO"
+    $COMPOSE_CMD up -d "$DISTRO"
     sleep 2
     
     # Setup the distro if not already done
     echo "Setting up $DISTRO..."
     # Alpine uses sh instead of bash
     if [ "$DISTRO" = "alpine" ]; then
-        docker exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
+        $RUNTIME exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
     else
-        docker exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
+        $RUNTIME exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
     fi
 fi
 
 # Execute the command
-docker exec -w /workspace "$CONTAINER_NAME" bash -c "$COMMAND"
+$RUNTIME exec -w /workspace "$CONTAINER_NAME" bash -c "$COMMAND"
 

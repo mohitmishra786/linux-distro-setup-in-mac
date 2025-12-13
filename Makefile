@@ -24,74 +24,82 @@ help:
 	@echo "  make shell-ubuntu"
 
 # Setup all distributions
+
+# Detect runtime
+RUNTIME := $(shell ./scripts/detect-runtime.sh 2>/dev/null || echo "docker")
+COMPOSE_CMD := $(shell if [ "$(RUNTIME)" = "podman" ]; then \
+	if command -v podman-compose >/dev/null 2>&1; then echo "podman-compose"; \
+	else echo "podman compose"; fi; \
+	else echo "$(COMPOSE_CMD)"; fi)
+
 setup:
 	@echo "Setting up all distributions..."
 	@for distro in ubuntu ubuntu-latest debian fedora alpine archlinux centos opensuse-leap opensuse-tumbleweed rocky-linux almalinux oraclelinux amazonlinux gentoo kali-linux; do \
 		echo "Setting up $$distro..."; \
-		docker-compose up -d $$distro || true; \
+		$(COMPOSE_CMD) up -d $$distro || true; \
 		sleep 2; \
-		docker exec linux-book-$$distro /scripts/setup-distro.sh $$distro || true; \
+		$(RUNTIME) exec linux-book-$$distro /scripts/setup-distro.sh $$distro || true; \
 	done
 	@echo "Setup complete!"
 
 # Start all containers
 start:
-	docker-compose up -d
+	$(COMPOSE_CMD) up -d
 
 # Stop all containers
 stop:
-	docker-compose stop
+	$(COMPOSE_CMD) stop
 
 # Restart all containers
 restart: stop start
 
 # Shell access for each distribution
 shell-ubuntu:
-	docker exec -it linux-book-ubuntu bash
+	$(RUNTIME) exec -it linux-book-ubuntu bash
 
 shell-ubuntu-latest:
-	docker exec -it linux-book-ubuntu-latest bash
+	$(RUNTIME) exec -it linux-book-ubuntu-latest bash
 
 shell-debian:
-	docker exec -it linux-book-debian bash
+	$(RUNTIME) exec -it linux-book-debian bash
 
 shell-fedora:
-	docker exec -it linux-book-fedora bash
+	$(RUNTIME) exec -it linux-book-fedora bash
 
 shell-alpine:
-	docker exec -it linux-book-alpine sh
+	$(RUNTIME) exec -it linux-book-alpine sh
 
 shell-archlinux:
-	docker exec -it linux-book-archlinux bash
+	$(RUNTIME) exec -it linux-book-archlinux bash
 
 shell-centos:
-	docker exec -it linux-book-centos bash
+	$(RUNTIME) exec -it linux-book-centos bash
 
 shell-opensuse-leap:
-	docker exec -it linux-book-opensuse-leap bash
+	$(RUNTIME) exec -it linux-book-opensuse-leap bash
 
 shell-opensuse-tumbleweed:
-	docker exec -it linux-book-opensuse-tumbleweed bash
+	$(RUNTIME) exec -it linux-book-opensuse-tumbleweed bash
 
 shell-rocky-linux:
-	docker exec -it linux-book-rocky-linux bash
+	$(RUNTIME) exec -it linux-book-rocky-linux bash
 
 shell-almalinux:
-	docker exec -it linux-book-almalinux bash
+	$(RUNTIME) exec -it linux-book-almalinux bash
 
 shell-oraclelinux:
-	docker exec -it linux-book-oraclelinux bash
+	$(RUNTIME) exec -it linux-book-oraclelinux bash
 
 shell-amazonlinux:
-	docker exec -it linux-book-amazonlinux bash
+	$(RUNTIME) exec -it linux-book-amazonlinux bash
 
 shell-gentoo:
-	docker exec -it linux-book-gentoo bash
+	$(RUNTIME) exec -it linux-book-gentoo bash
 
 shell-kali-linux:
-	docker exec -it linux-book-kali-linux bash
+	$(RUNTIME) exec -it linux-book-kali-linux bash
 
 # Clean up
 clean:
-	docker-compose down
+	$(COMPOSE_CMD) down
 

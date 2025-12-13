@@ -47,10 +47,10 @@ if [ "$1" = "--compile" ]; then
         echo "=========================================="
         
         if ./scripts/compile-and-run.sh "$distro" "$SOURCE_FILE" "$OUTPUT_NAME" > /tmp/test_${distro}.log 2>&1; then
-            echo "✓ SUCCESS: $distro"
+            echo "[SUCCESS] SUCCESS: $distro"
             SUCCESSFUL+=("$distro")
         else
-            echo "✗ FAILED: $distro"
+            echo "[FAILED] FAILED: $distro"
             FAILED+=("$distro")
             echo "Error log:"
             tail -3 /tmp/test_${distro}.log | grep -v "^$" || tail -3 /tmp/test_${distro}.log
@@ -63,14 +63,14 @@ if [ "$1" = "--compile" ]; then
     echo "=========================================="
     echo "Successful: ${#SUCCESSFUL[@]}/${#DISTROS[@]}"
     for distro in "${SUCCESSFUL[@]}"; do
-        echo "  ✓ $distro"
+        echo "  [SUCCESS] $distro"
     done
     
     if [ ${#FAILED[@]} -gt 0 ]; then
         echo ""
         echo "Failed: ${#FAILED[@]}/${#DISTROS[@]}"
         for distro in "${FAILED[@]}"; do
-            echo "  ✗ $distro"
+            echo "  [FAILED] $distro"
         done
     fi
     
