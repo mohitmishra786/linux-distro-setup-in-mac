@@ -32,12 +32,16 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **openSUSE Tumbleweed** (Latest) - zypper
 - **Gentoo** (Latest) - emerge
 
-**Total: 16 Linux distributions**
+**Total: 15 Linux distributions**
 
 ## Documentation
 
-- **[Usage Guide](USAGE_GUIDE.md)** - Comprehensive guide on integrating and using this environment in your projects
-- **[VS Code Extension Plan](VSCODE_EXTENSION_PLAN.md)** - Development plan for VS Code extension (coming soon)
+- **[Quick Start](docs/QUICK_START.md)** - Get started quickly
+- **[Usage Guide](docs/USAGE_GUIDE.md)** - Comprehensive guide on integrating and using this environment
+- **[VS Code Extension](vscode-extension/README.md)** - VS Code extension for easy integration
+- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Progress indicators and GitHub management quick reference
+- **[Cross-Platform Notes](docs/CROSS_PLATFORM_NOTES.md)** - Technical details on cross-platform compatibility
+- **[Release Notes v1.0.4](docs/RELEASE_NOTES_v1.0.4.md)** - Latest release information
 
 ## Quick Start
 
@@ -111,11 +115,17 @@ gcc hello.c -o hello
 ├── docker-compose.yml      # Docker Compose configuration
 ├── Makefile                # Convenience commands
 ├── scripts/                # Helper scripts
+│   ├── lib/                # Shared utilities
+│   │   └── progress.sh    # Progress indicator library
 │   ├── setup-distro.sh     # Install build tools
 │   ├── run-in-distro.sh    # Run command in distro
 │   ├── compile-and-run.sh  # Compile and run C code
-│   └── run-all-distros.sh  # Run command in all distros
+│   ├── run-all-distros.sh  # Run command in all distros
+│   ├── gh-labels.sh        # GitHub labels management
+│   └── gh-issues.sh        # GitHub issues management
+├── vscode-extension/       # VS Code extension
 ├── code/                   # Your C code goes here (auto-created)
+├── docs/                   # Documentation
 └── README.md              # This file
 ```
 
@@ -254,17 +264,31 @@ make clean
 docker-compose down -v
 ```
 
+## Progress Indicators
+
+All scripts now include progress indicators showing:
+- Step-by-step progress (e.g., [1/4] Checking container status...)
+- Status messages ([OK], [FAIL], [INFO], [WARN])
+- Summary statistics with success rates and timing
+
+The VS Code extension also displays progress notifications:
+- Setup progress for each distribution
+- Compilation progress for each step
+- Test progress across all distributions
+
 ## Tips
 
 1. **Code Persistence**: All code in the `code/` directory is shared across all containers, so you can compile in one distro and examine in another.
 
-2. **Quick Testing**: Use `./scripts/compile-and-run.sh` for quick compile-and-test cycles.
+2. **Quick Testing**: Use `./scripts/compile-and-run.sh` for quick compile-and-test cycles with progress tracking.
 
-3. **Batch Operations**: Use `./scripts/run-all-distros.sh` to verify behavior across all distributions.
+3. **Batch Operations**: Use `./scripts/run-all-distros.sh` to verify behavior across all distributions with detailed progress.
 
 4. **Interactive Development**: Use `make shell-<distro>` for interactive debugging and exploration.
 
 5. **Version Differences**: Different distros may have different versions of GCC and binutils. Use `gcc --version` to check.
+
+6. **VS Code Extension**: Install the extension from `vscode-extension/` for integrated progress tracking and easy access to all features.
 
 ## Next Steps
 
@@ -273,5 +297,5 @@ docker-compose down -v
 3. Compare outputs to ensure consistency
 4. Document any distro-specific differences in your book
 
-Happy coding! 🐧
+Happy coding!
 

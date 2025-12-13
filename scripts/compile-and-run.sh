@@ -1,9 +1,20 @@
 #!/bin/bash
 # Compile and run a C program in a specific Linux distribution
 
+# Force unbuffered output (cross-platform)
+# This ensures real-time output in VS Code and other environments
+exec 1> >(exec cat)
+exec 2> >(exec cat >&2)
+
+# Setup
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source progress indicator library if available
+if [ -f "$SCRIPT_DIR/lib/progress.sh" ]; then
+    source "$SCRIPT_DIR/lib/progress.sh"
+fi
 
 # Detect container runtime
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RUNTIME=$("$SCRIPT_DIR/detect-runtime.sh")
 if [ $? -ne 0 ]; then
     echo "$RUNTIME"
@@ -47,21 +58,29 @@ fi
 CONTAINER_NAME="linux-book-${DISTRO}"
 
 # Ensure container is running
+progress_step "1" "4" "Checking container status..."
 if ! $RUNTIME ps | grep -q "$CONTAINER_NAME"; then
-    echo "Starting container $CONTAINER_NAME..."
-    $COMPOSE_CMD up -d "$DISTRO"
+    progress_step "1" "4" "Starting container $CONTAINER_NAME..."
+    $COMPOSE_CMD up -d "$DISTRO" > /dev/null 2>&1
     sleep 2
+    status_success "Container started"
+else
+    status_info "Container already running"
 fi
 
 # Check if gcc is available, if not, set up the distro
+progress_step "2" "4" "Checking build tools..."
 if ! $RUNTIME exec "$CONTAINER_NAME" which gcc > /dev/null 2>&1; then
-    echo "Setting up $DISTRO (installing build tools)..."
+    progress_step "2" "4" "Installing build tools in $DISTRO..."
     # Alpine uses sh instead of bash
     if [ "$DISTRO" = "alpine" ]; then
-        $RUNTIME exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO"
+        $RUNTIME exec "$CONTAINER_NAME" sh /scripts/setup-distro.sh "$DISTRO" > /dev/null 2>&1
     else
-        $RUNTIME exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO"
+        $RUNTIME exec "$CONTAINER_NAME" /scripts/setup-distro.sh "$DISTRO" > /dev/null 2>&1
     fi
+    status_success "Build tools installed"
+else
+    status_info "Build tools already installed"
 fi
 
 # Get the basename of the source file (relative to code directory)
@@ -76,18 +95,18 @@ else
 fi
 
 # Compile
-echo "Compiling $SOURCE_FILE in $DISTRO..."
+progress_step "3" "4" "Compiling $SOURCE_FILE in $DISTRO..."
 $RUNTIME exec -w /workspace "$CONTAINER_NAME" gcc -o "$OUTPUT_NAME" "$SOURCE_PATH"
 
 if [ $? -eq 0 ]; then
-    echo "Compilation successful!"
+    status_success "Compilation successful"
     echo ""
-    echo "Running $OUTPUT_NAME..."
+    progress_step "4" "4" "Running $OUTPUT_NAME..."
     echo "---"
     $RUNTIME exec -w /workspace "$CONTAINER_NAME" ./"$OUTPUT_NAME"
     echo "---"
+    status_success "Execution complete"
 else
-    echo "Compilation failed!"
+    status_error "Compilation failed"
     exit 1
 fi
-

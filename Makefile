@@ -31,15 +31,29 @@ COMPOSE_CMD := $(shell if [ "$(RUNTIME)" = "podman" ]; then \
 	if command -v podman-compose >/dev/null 2>&1; then echo "podman-compose"; \
 	else echo "podman compose"; fi; \
 	else echo "$(COMPOSE_CMD)"; fi)
-
+# Setup all distributions
 setup:
-	@echo "Setting up all distributions..."
-	@for distro in ubuntu ubuntu-latest debian fedora alpine archlinux centos opensuse-leap opensuse-tumbleweed rocky-linux almalinux oraclelinux amazonlinux gentoo kali-linux; do \
-		echo "Setting up $$distro..."; \
-		$(COMPOSE_CMD) up -d $$distro || true; \
+	@echo "=========================================="
+	@echo "Setting up all distributions"
+	@echo "=========================================="
+	@total=15; \
+	current=0; \
+	for distro in ubuntu ubuntu-latest debian fedora alpine archlinux centos opensuse-leap opensuse-tumbleweed rocky-linux almalinux oraclelinux amazonlinux gentoo kali-linux; do \
+		current=$$((current + 1)); \
+		echo ""; \
+		echo "[$$current/$$total] Setting up $$distro..."; \
+		$(COMPOSE_CMD) up -d $$distro > /dev/null 2>&1 || true; \
 		sleep 2; \
-		$(RUNTIME) exec linux-book-$$distro /scripts/setup-distro.sh $$distro || true; \
+		if $(RUNTIME) exec linux-book-$$distro /scripts/setup-distro.sh $$distro > /dev/null 2>&1; then \
+			echo "[$$current/$$total] $$distro setup complete [SUCCESS]"; \
+		else \
+			echo "[$$current/$$total] $$distro setup complete [WARNING: some packages may have failed]"; \
+		fi; \
 	done
+	@echo ""
+	@echo "=========================================="
+	@echo "Setup complete: 15/15 distributions processed"
+	@echo "=========================================="
 	@echo "Setup complete!"
 
 # Start all containers
