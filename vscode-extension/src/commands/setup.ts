@@ -1,9 +1,17 @@
 import * as vscode from 'vscode';
 import { spawn } from 'child_process';
-import { checkDockerRunning, startContainers } from '../utils/docker';
+import { checkDockerRunning, startContainers, validateWorkspace } from '../utils/docker';
 import { getOutputChannel } from './compileRun';
 
 export async function setupDistributions(): Promise<void> {
+    // Validate workspace first
+    const validation = validateWorkspace();
+    if (!validation.valid) {
+        const message = `Workspace validation failed. Missing: ${validation.missing.join(', ')}.\n\nPlease open the linux-distro-setup-in-mac project folder (the folder containing docker-compose.yml and Makefile).`;
+        vscode.window.showErrorMessage(message);
+        return;
+    }
+
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();

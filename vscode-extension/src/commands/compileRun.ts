@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { executeScript, executeScriptStream } from '../utils/scripts';
-import { checkDockerRunning, checkContainersRunning, startContainers } from '../utils/docker';
+import { checkDockerRunning, checkContainersRunning, startContainers, validateWorkspace } from '../utils/docker';
 import { Distribution } from '../types/distro';
 import { getConfig, getWorkspaceRoot } from '../utils/config';
 
@@ -15,6 +15,14 @@ export function getOutputChannel(): vscode.OutputChannel {
 }
 
 export async function compileRun(distribution?: Distribution): Promise<void> {
+    // Validate workspace first
+    const validation = validateWorkspace();
+    if (!validation.valid) {
+        const message = `Workspace validation failed. Missing: ${validation.missing.join(', ')}.\n\nPlease open the linux-distro-setup-in-mac project folder (the folder containing docker-compose.yml and Makefile).`;
+        vscode.window.showErrorMessage(message);
+        return;
+    }
+
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();
@@ -120,6 +128,14 @@ export async function compileRunDistro(): Promise<void> {
 }
 
 export async function testAll(): Promise<void> {
+    // Validate workspace first
+    const validation = validateWorkspace();
+    if (!validation.valid) {
+        const message = `Workspace validation failed. Missing: ${validation.missing.join(', ')}.\n\nPlease open the linux-distro-setup-in-mac project folder (the folder containing docker-compose.yml and Makefile).`;
+        vscode.window.showErrorMessage(message);
+        return;
+    }
+
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();
