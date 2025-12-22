@@ -2,7 +2,7 @@
   "name": "distrolab",
   "displayName": "DistroLab",
   "description": "Test your code across 15 Linux distributions using Docker with real-time progress indicators.",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "publisher": "mohitmishra",
   "license": "MIT",
   "repository": {
