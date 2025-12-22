@@ -165,3 +165,5 @@ Potential improvements (not currently needed):
 
 The implementation prioritizes **simplicity** and **compatibility** over complex buffering workarounds.
 
+
+

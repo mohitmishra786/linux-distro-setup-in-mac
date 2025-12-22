@@ -187,3 +187,5 @@ If output is still buffered:
 
 The key insight: **Remove all pipes and use exec redirection for unbuffered I/O.**
 
+
+
