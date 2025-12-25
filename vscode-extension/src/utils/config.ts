@@ -5,6 +5,7 @@ import { DistroLabConfig, Distribution } from '../types/distro';
 export function getConfig(): DistroLabConfig {
     const config = vscode.workspace.getConfiguration('distrolab');
     return {
+        distroLabPath: config.get<string>('distroLabPath', ''),
         dockerComposePath: config.get<string>('dockerComposePath', './docker-compose.yml'),
         scriptsPath: config.get<string>('scriptsPath', './scripts'),
         defaultDistro: config.get<Distribution>('defaultDistro', 'ubuntu'),

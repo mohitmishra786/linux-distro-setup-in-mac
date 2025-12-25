@@ -20,16 +20,13 @@ export async function executeScript(
     outputChannel: vscode.OutputChannel
 ): Promise<{ success: boolean; output: string }> {
     const config = getConfig();
-    const root = getWorkspaceRoot();
+    const distroLabPath = config.distroLabPath;
     
-    if (!root) {
-        throw new Error('No workspace folder open');
+    if (!distroLabPath) {
+        throw new Error('DistroLab installation path not configured');
     }
 
-    const scriptsPath = config.scriptsPath.startsWith('/')
-        ? config.scriptsPath
-        : path.join(root, config.scriptsPath);
-
+    const scriptsPath = path.join(distroLabPath, 'scripts');
     const scriptPath = path.join(scriptsPath, scriptName);
     const command = `"${scriptPath}" ${args.map(arg => `"${arg}"`).join(' ')}`;
 
@@ -38,7 +35,7 @@ export async function executeScript(
 
     try {
         const { stdout, stderr } = await execAsync(command, {
-            cwd: root,
+            cwd: distroLabPath,
             maxBuffer: 10 * 1024 * 1024 // 10MB buffer
         });
 
@@ -70,10 +67,8 @@ export async function executeScript(
 
 export function getScriptPath(scriptName: string): string {
     const config = getConfig();
-    const root = getWorkspaceRoot() || '';
-    const scriptsPath = config.scriptsPath.startsWith('/')
-        ? config.scriptsPath
-        : path.join(root, config.scriptsPath);
+    const distroLabPath = config.distroLabPath || '';
+    const scriptsPath = path.join(distroLabPath, 'scripts');
     return path.join(scriptsPath, scriptName);
 }
 
@@ -96,16 +91,13 @@ export async function executeScriptStream(
     onProgress?: (line: string) => void
 ): Promise<{ success: boolean; output: string }> {
     const config = getConfig();
-    const root = getWorkspaceRoot();
+    const distroLabPath = config.distroLabPath;
     
-    if (!root) {
-        throw new Error('No workspace folder open');
+    if (!distroLabPath) {
+        throw new Error('DistroLab installation path not configured');
     }
 
-    const scriptsPath = config.scriptsPath.startsWith('/')
-        ? config.scriptsPath
-        : path.join(root, config.scriptsPath);
-
+    const scriptsPath = path.join(distroLabPath, 'scripts');
     const scriptPath = path.join(scriptsPath, scriptName);
 
     outputChannel.appendLine(`Executing: ${scriptPath} ${args.join(' ')}`);
@@ -129,7 +121,7 @@ export async function executeScriptStream(
 
         // Direct spawn without script command (works on all platforms)
         const childProcess = spawn(scriptPath, args, {
-            cwd: root,
+            cwd: distroLabPath,
             shell: true, // Use shell for proper bash execution
             stdio: ['ignore', 'pipe', 'pipe'],
             env: env

@@ -1,20 +1,20 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { spawn } from 'child_process';
-import { checkDockerRunning, startContainers, validateWorkspace } from '../utils/docker';
+import { checkDockerRunning, startContainers } from '../utils/docker';
 import { getOutputChannel } from './compileRun';
+import { showValidationErrorIfNeeded } from '../utils/validation';
+import { getConfig } from '../utils/config';
 
 export async function setupDistributions(): Promise<void> {
-    // Validate workspace first
-    const validation = validateWorkspace();
-    if (!validation.valid) {
-        const message = `Workspace validation failed. Missing: ${validation.missing.join(', ')}.\n\nPlease open the linux-distro-setup-in-mac project folder (the folder containing docker-compose.yml and Makefile).`;
-        vscode.window.showErrorMessage(message);
-        return;
-    }
-
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();
+
+    // Validate DistroLab installation first
+    if (!(await showValidationErrorIfNeeded())) {
+        return;
+    }
 
     // Check Docker
     if (!(await checkDockerRunning())) {
@@ -40,11 +40,8 @@ export async function setupDistributions(): Promise<void> {
     channel.appendLine('');
 
     // Execute setup script via Makefile with progress tracking
-    const root = require('../utils/config').getWorkspaceRoot();
-    if (!root) {
-        vscode.window.showErrorMessage('No workspace folder open');
-        return;
-    }
+    const config = getConfig();
+    const distroLabPath = config.distroLabPath;
 
     // Show progress with real-time streaming
     await vscode.window.withProgress({
@@ -59,7 +56,7 @@ export async function setupDistributions(): Promise<void> {
             
             // Execute make setup directly with real-time streaming
             return new Promise<void>((resolve) => {
-                const childProcess = spawn('make', ['setup'], { cwd: root, shell: true });
+                const childProcess = spawn('make', ['setup'], { cwd: distroLabPath, shell: true });
                 let currentDistro = 0;
 
                 childProcess.stdout?.on('data', (data: Buffer) => {

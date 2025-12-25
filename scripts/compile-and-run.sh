@@ -1,11 +1,6 @@
 #!/bin/bash
 # Compile and run a C program in a specific Linux distribution
 
-# Force unbuffered output (cross-platform)
-# This ensures real-time output in VS Code and other environments
-exec 1> >(exec cat)
-exec 2> >(exec cat >&2)
-
 # Setup
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
