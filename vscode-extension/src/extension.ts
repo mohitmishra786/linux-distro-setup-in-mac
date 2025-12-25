@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { compileRun, compileRunDistro, testAll } from './commands/compileRun';
 import { setupDistributions } from './commands/setup';
 import { selectDistro, createStatusBarItem, dispose as disposeStatusBar } from './commands/distroSelect';
-import { startContainers, stopContainers } from './utils/docker';
+import { startContainers, stopContainers, checkDockerRunning } from './utils/docker';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('DistroLab extension is now active!');
@@ -29,7 +29,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 async function checkDockerOnActivation(): Promise<void> {
-    const { checkDockerRunning } = await import('./utils/docker');
     if (!(await checkDockerRunning())) {
         vscode.window.showWarningMessage(
             'DistroLab: Docker is not running. Please start Docker Desktop to use this extension.',
@@ -41,4 +40,3 @@ async function checkDockerOnActivation(): Promise<void> {
 export function deactivate() {
     disposeStatusBar();
 }
-

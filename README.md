@@ -36,12 +36,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Documentation
 
-- **[Quick Start](docs/QUICK_START.md)** - Get started quickly
-- **[Usage Guide](docs/USAGE_GUIDE.md)** - Comprehensive guide on integrating and using this environment
+- **[Usage Guide](USAGE_GUIDE.md)** - Comprehensive guide on integrating and using this environment in your projects
 - **[VS Code Extension](vscode-extension/README.md)** - VS Code extension for easy integration
-- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Progress indicators and GitHub management quick reference
-- **[Cross-Platform Notes](docs/CROSS_PLATFORM_NOTES.md)** - Technical details on cross-platform compatibility
-- **[Release Notes v1.0.4](docs/RELEASE_NOTES_v1.0.4.md)** - Latest release information
 
 ## Quick Start
 

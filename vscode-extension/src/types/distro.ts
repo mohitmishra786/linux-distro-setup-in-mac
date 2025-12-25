@@ -19,8 +19,6 @@ export const DISTRIBUTIONS = [
 export type Distribution = typeof DISTRIBUTIONS[number];
 
 export interface DistroLabConfig {
-    dockerComposePath: string;
-    scriptsPath: string;
     defaultDistro: Distribution;
     autoSetup: boolean;
 }

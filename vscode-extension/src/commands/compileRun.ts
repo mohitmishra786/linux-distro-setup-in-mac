@@ -1,9 +1,8 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import { executeScript, executeScriptStream } from '../utils/scripts';
-import { checkDockerRunning, checkContainersRunning, startContainers, validateWorkspace } from '../utils/docker';
+import { executeScriptStream, prepareSourceFile } from '../utils/scripts';
+import { checkDockerRunning, checkContainersRunning, startContainers } from '../utils/docker';
 import { Distribution } from '../types/distro';
-import { getConfig, getWorkspaceRoot } from '../utils/config';
+import { getConfig } from '../utils/config';
 
 let outputChannel: vscode.OutputChannel | undefined;
 
@@ -15,14 +14,6 @@ export function getOutputChannel(): vscode.OutputChannel {
 }
 
 export async function compileRun(distribution?: Distribution): Promise<void> {
-    // Validate workspace first
-    const validation = validateWorkspace();
-    if (!validation.valid) {
-        const message = `Workspace validation failed. Missing: ${validation.missing.join(', ')}.\n\nPlease open the linux-distro-setup-in-mac project folder (the folder containing docker-compose.yml and Makefile).`;
-        vscode.window.showErrorMessage(message);
-        return;
-    }
-
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();
@@ -55,20 +46,24 @@ export async function compileRun(distribution?: Distribution): Promise<void> {
     }
 
     const filePath = activeEditor.document.uri.fsPath;
-    const root = getWorkspaceRoot();
+    const fileName = activeEditor.document.fileName;
     
-    if (!root) {
-        vscode.window.showErrorMessage('No workspace folder open');
+    // Save the file first
+    await activeEditor.document.save();
+    
+    // Copy file to bundled code directory and get relative path
+    let relativePath: string;
+    try {
+        relativePath = prepareSourceFile(filePath);
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Failed to prepare source file: ${error.message}`);
         return;
     }
-
-    // Get relative path from workspace root
-    const relativePath = path.relative(root, filePath);
     
     // Determine distribution
     const distro = distribution || getConfig().defaultDistro;
 
-    channel.appendLine(`Compiling and running: ${relativePath}`);
+    channel.appendLine(`Compiling and running: ${fileName}`);
     channel.appendLine(`Distribution: ${distro}`);
     channel.appendLine('');
 
@@ -128,14 +123,6 @@ export async function compileRunDistro(): Promise<void> {
 }
 
 export async function testAll(): Promise<void> {
-    // Validate workspace first
-    const validation = validateWorkspace();
-    if (!validation.valid) {
-        const message = `Workspace validation failed. Missing: ${validation.missing.join(', ')}.\n\nPlease open the linux-distro-setup-in-mac project folder (the folder containing docker-compose.yml and Makefile).`;
-        vscode.window.showErrorMessage(message);
-        return;
-    }
-
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();
@@ -168,16 +155,21 @@ export async function testAll(): Promise<void> {
     }
 
     const filePath = activeEditor.document.uri.fsPath;
-    const root = getWorkspaceRoot();
+    const fileName = activeEditor.document.fileName;
     
-    if (!root) {
-        vscode.window.showErrorMessage('No workspace folder open');
+    // Save the file first
+    await activeEditor.document.save();
+    
+    // Copy file to bundled code directory and get relative path
+    let relativePath: string;
+    try {
+        relativePath = prepareSourceFile(filePath);
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Failed to prepare source file: ${error.message}`);
         return;
     }
 
-    const relativePath = path.relative(root, filePath);
-
-    channel.appendLine(`Testing across all distributions: ${relativePath}`);
+    channel.appendLine(`Testing across all distributions: ${fileName}`);
     channel.appendLine('');
 
     const distributions = [
@@ -241,4 +233,3 @@ export async function testAll(): Promise<void> {
         }
     });
 }
-

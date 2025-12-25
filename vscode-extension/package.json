@@ -1,8 +1,8 @@
 {
   "name": "distrolab",
   "displayName": "DistroLab",
-  "description": "Test your code across 15 Linux distributions using Docker with real-time progress indicators.",
-  "version": "1.0.5",
+  "description": "Test your code across 16 Linux distributions using Docker. Supports C, C++, Rust, Go, and more.",
+  "version": "1.0.7",
   "publisher": "mohitmishra",
   "license": "MIT",
   "repository": {
@@ -40,31 +40,31 @@
     "commands": [
       {
         "command": "distrolab.compileRun",
-        "title": "Compile & Run Current File"
+        "title": "DistroLab: Compile & Run Current File"
       },
       {
         "command": "distrolab.compileRunDistro",
-        "title": "Compile & Run in Distribution..."
+        "title": "DistroLab: Compile & Run in Distribution..."
       },
       {
         "command": "distrolab.testAll",
-        "title": "Test in All Distributions"
+        "title": "DistroLab: Test in All Distributions"
       },
       {
         "command": "distrolab.setup",
-        "title": "Setup All Distributions"
+        "title": "DistroLab: Setup All Distributions"
       },
       {
         "command": "distrolab.selectDistro",
-        "title": "Select Default Distribution"
+        "title": "DistroLab: Select Default Distribution"
       },
       {
         "command": "distrolab.startContainers",
-        "title": "Start Docker Containers"
+        "title": "DistroLab: Start Docker Containers"
       },
       {
         "command": "distrolab.stopContainers",
-        "title": "Stop Docker Containers"
+        "title": "DistroLab: Stop Docker Containers"
       }
     ],
     "menus": {
@@ -96,16 +96,6 @@
     "configuration": {
       "title": "DistroLab",
       "properties": {
-        "distrolab.dockerComposePath": {
-          "type": "string",
-          "default": "./docker-compose.yml",
-          "description": "Path to docker-compose.yml file (relative to workspace root)"
-        },
-        "distrolab.scriptsPath": {
-          "type": "string",
-          "default": "./scripts",
-          "description": "Path to scripts directory (relative to workspace root)"
-        },
         "distrolab.defaultDistro": {
           "type": "string",
           "default": "ubuntu",

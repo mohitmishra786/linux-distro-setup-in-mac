@@ -1,111 +1,49 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { exec, spawn } from 'child_process';
-import { promisify } from 'util';
-import { getConfig, getWorkspaceRoot } from './config';
-import { Distribution } from '../types/distro';
-
-const execAsync = promisify(exec);
+import * as fs from 'fs';
+import { spawn } from 'child_process';
+import { getBundledPath } from './config';
 
 // Strip ANSI color codes from string
 function stripAnsiCodes(str: string): string {
-    // Remove all ANSI escape sequences including color codes and other control sequences
     // eslint-disable-next-line no-control-regex
     return str.replace(/\x1B\[[0-9;]*[A-Za-z]/g, '').replace(/\x1B\][^\x07]*\x07/g, '');
 }
 
-export async function executeScript(
-    scriptName: string,
-    args: string[],
-    outputChannel: vscode.OutputChannel
-): Promise<{ success: boolean; output: string }> {
-    const config = getConfig();
-    const root = getWorkspaceRoot();
+/**
+ * Copies a file from anywhere to the bundled code directory and returns the relative path
+ */
+export function prepareSourceFile(sourceFilePath: string): string {
+    const bundledPath = getBundledPath();
+    const codeDir = path.join(bundledPath, 'code');
     
-    if (!root) {
-        throw new Error('No workspace folder open');
+    // Ensure code directory exists
+    if (!fs.existsSync(codeDir)) {
+        fs.mkdirSync(codeDir, { recursive: true });
     }
-
-    const scriptsPath = config.scriptsPath.startsWith('/')
-        ? config.scriptsPath
-        : path.join(root, config.scriptsPath);
-
-    const scriptPath = path.join(scriptsPath, scriptName);
-    const command = `"${scriptPath}" ${args.map(arg => `"${arg}"`).join(' ')}`;
-
-    outputChannel.appendLine(`Executing: ${command}`);
-    outputChannel.appendLine('');
-
-    try {
-        const { stdout, stderr } = await execAsync(command, {
-            cwd: root,
-            maxBuffer: 10 * 1024 * 1024 // 10MB buffer
-        });
-
-        const output = stdout + (stderr ? '\n' + stderr : '');
-        outputChannel.append(output);
-        return { success: true, output };
-    } catch (error: any) {
-        // Handle undefined stdout/stderr properties with fallback values (like in setup.ts)
-        const errorStdout = error.stdout || '';
-        const errorStderr = error.stderr || '';
-        const errorMessage = error.message || '';
-        
-        // Build error output: stdout, then stderr, then message if no stdout/stderr
-        let errorOutput = errorStdout;
-        if (errorStderr) {
-            errorOutput += (errorOutput ? '\n' : '') + errorStderr;
-        }
-        if (!errorOutput && errorMessage) {
-            errorOutput = errorMessage;
-        }
-        if (!errorOutput) {
-            errorOutput = 'Unknown error occurred';
-        }
-        
-        outputChannel.append(errorOutput);
-        return { success: false, output: errorOutput };
-    }
+    
+    // Get just the filename
+    const fileName = path.basename(sourceFilePath);
+    const destPath = path.join(codeDir, fileName);
+    
+    // Copy the file
+    fs.copyFileSync(sourceFilePath, destPath);
+    
+    // Return relative path from bundled directory
+    return `code/${fileName}`;
 }
 
-export function getScriptPath(scriptName: string): string {
-    const config = getConfig();
-    const root = getWorkspaceRoot() || '';
-    const scriptsPath = config.scriptsPath.startsWith('/')
-        ? config.scriptsPath
-        : path.join(root, config.scriptsPath);
-    return path.join(scriptsPath, scriptName);
-}
-
-export function isScriptExecutable(scriptPath: string): boolean {
-    try {
-        const fs = require('fs');
-        const stats = fs.statSync(scriptPath);
-        // Check if file exists and is executable (Unix) or just exists (Windows)
-        return stats.isFile();
-    } catch {
-        return false;
-    }
-}
-
-// Execute script with real-time streaming output and progress callback
+/**
+ * Execute script with real-time streaming output and show actual program output
+ */
 export async function executeScriptStream(
     scriptName: string,
     args: string[],
     outputChannel: vscode.OutputChannel,
     onProgress?: (line: string) => void
 ): Promise<{ success: boolean; output: string }> {
-    const config = getConfig();
-    const root = getWorkspaceRoot();
-    
-    if (!root) {
-        throw new Error('No workspace folder open');
-    }
-
-    const scriptsPath = config.scriptsPath.startsWith('/')
-        ? config.scriptsPath
-        : path.join(root, config.scriptsPath);
-
+    const bundledPath = getBundledPath();
+    const scriptsPath = path.join(bundledPath, 'scripts');
     const scriptPath = path.join(scriptsPath, scriptName);
 
     outputChannel.appendLine(`Executing: ${scriptPath} ${args.join(' ')}`);
@@ -117,20 +55,18 @@ export async function executeScriptStream(
         let exitCode = 0;
         let stdoutBuffer = '';
         let stderrBuffer = '';
+        let inOutputSection = false;
 
-        // Environment setup for unbuffered output (cross-platform)
         const env = {
             ...process.env,
             PYTHONUNBUFFERED: '1',
-            TERM: 'dumb', // Disable color output from scripts
-            // Force unbuffered output in bash
+            TERM: 'dumb',
             BASH_ENV: '',
         };
 
-        // Direct spawn without script command (works on all platforms)
         const childProcess = spawn(scriptPath, args, {
-            cwd: root,
-            shell: true, // Use shell for proper bash execution
+            cwd: bundledPath,
+            shell: true,
             stdio: ['ignore', 'pipe', 'pipe'],
             env: env
         });
@@ -138,24 +74,47 @@ export async function executeScriptStream(
         // Process complete lines from buffer
         const processLines = (buffer: string, isStderr: boolean): string => {
             const lines = buffer.split('\n');
-            const remaining = lines.pop() || ''; // Last incomplete line
+            const remaining = lines.pop() || '';
             
             for (const line of lines) {
-                if (line.trim()) {
-                    const cleanLine = stripAnsiCodes(line);
+                const cleanLine = stripAnsiCodes(line);
+                
+                // Check if we're entering the output section
+                if (cleanLine.includes('[4/4] Running')) {
+                    inOutputSection = true;
                     outputChannel.append(cleanLine + '\n');
-                    
-                    // Call progress callback immediately for each complete line
+                    if (onProgress) {
+                        onProgress(cleanLine);
+                    }
+                    continue;
+                }
+                
+                // Check if we're at the end marker
+                if (cleanLine.includes('[OK] Execution complete') || 
+                    cleanLine.includes('[FAIL]')) {
+                    inOutputSection = false;
+                    outputChannel.append(cleanLine + '\n');
+                    if (onProgress) {
+                        onProgress(cleanLine);
+                    }
+                    continue;
+                }
+                
+                // If in output section, show everything
+                if (inOutputSection) {
+                    outputChannel.append(cleanLine + '\n');
+                } else if (line.trim()) {
+                    // Otherwise, only show if not empty
+                    outputChannel.append(cleanLine + '\n');
                     if (onProgress) {
                         onProgress(cleanLine);
                     }
                 }
             }
             
-            // Also check remaining buffer for progress patterns (might be incomplete line)
-            if (remaining && onProgress) {
+            // Check remaining buffer for progress patterns
+            if (remaining && onProgress && !inOutputSection) {
                 const cleanRemaining = stripAnsiCodes(remaining);
-                // Check if it contains progress indicators (like [1/15])
                 if (cleanRemaining.match(/\[\d+\/\d+\]/)) {
                     onProgress(cleanRemaining);
                 }
@@ -164,41 +123,34 @@ export async function executeScriptStream(
             return remaining;
         };
 
-        // Handle stdout with proper line buffering
         childProcess.stdout?.on('data', (data: Buffer) => {
             const text = data.toString();
             output += text;
             stdoutBuffer += text;
-            
-            // Process complete lines
             stdoutBuffer = processLines(stdoutBuffer, false);
         });
 
-        // Handle stderr with proper line buffering
         childProcess.stderr?.on('data', (data: Buffer) => {
             const text = data.toString();
             errorOutput += text;
             stderrBuffer += text;
-            
-            // Process complete lines
             stderrBuffer = processLines(stderrBuffer, true);
         });
 
-        // Handle process completion - process any remaining buffered lines
         childProcess.on('close', (code) => {
             exitCode = code || 0;
             
             // Process any remaining buffered lines
             if (stdoutBuffer.trim()) {
                 const cleanLine = stripAnsiCodes(stdoutBuffer);
-                outputChannel.append(cleanLine);
+                outputChannel.append(cleanLine + '\n');
                 if (onProgress) {
                     onProgress(cleanLine);
                 }
             }
             if (stderrBuffer.trim()) {
                 const cleanLine = stripAnsiCodes(stderrBuffer);
-                outputChannel.append(cleanLine);
+                outputChannel.append(cleanLine + '\n');
                 if (onProgress) {
                     onProgress(cleanLine);
                 }
@@ -211,7 +163,6 @@ export async function executeScriptStream(
             });
         });
 
-        // Handle errors
         childProcess.on('error', (error) => {
             const errorMsg = error.message || 'Unknown error';
             outputChannel.append(errorMsg);
