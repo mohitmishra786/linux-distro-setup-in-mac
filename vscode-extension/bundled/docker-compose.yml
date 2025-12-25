@@ -1,0 +1,190 @@
+services:
+  ubuntu:
+    image: ubuntu:22.04
+    platform: linux/amd64
+    container_name: linux-book-ubuntu
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    networks:
+      - linux-book-network
+
+  ubuntu-latest:
+    image: ubuntu:latest
+    platform: linux/amd64
+    container_name: linux-book-ubuntu-latest
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    networks:
+      - linux-book-network
+
+  debian:
+    image: debian:bookworm
+    platform: linux/amd64
+    container_name: linux-book-debian
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    networks:
+      - linux-book-network
+
+  fedora:
+    image: fedora:latest
+    platform: linux/amd64
+    container_name: linux-book-fedora
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  alpine:
+    image: alpine:latest
+    container_name: linux-book-alpine
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  archlinux:
+    image: archlinux:latest
+    platform: linux/amd64
+    container_name: linux-book-archlinux
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  centos:
+    image: centos:7
+    platform: linux/amd64
+    container_name: linux-book-centos
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  opensuse-leap:
+    image: opensuse/leap:latest
+    platform: linux/amd64
+    container_name: linux-book-opensuse-leap
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  opensuse-tumbleweed:
+    image: opensuse/tumbleweed:latest
+    platform: linux/amd64
+    container_name: linux-book-opensuse-tumbleweed
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  rocky-linux:
+    image: rockylinux/rockylinux:latest
+    platform: linux/amd64
+    container_name: linux-book-rocky-linux
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  almalinux:
+    image: almalinux/almalinux:latest
+    platform: linux/amd64
+    container_name: linux-book-almalinux
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  oraclelinux:
+    image: oraclelinux:9
+    platform: linux/amd64
+    container_name: linux-book-oraclelinux
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  amazonlinux:
+    image: amazonlinux:2023
+    platform: linux/amd64
+    container_name: linux-book-amazonlinux
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  gentoo:
+    image: gentoo/stage3:latest
+    platform: linux/amd64
+    container_name: linux-book-gentoo
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+  kali-linux:
+    image: kalilinux/kali-rolling:latest
+    platform: linux/amd64
+    container_name: linux-book-kali-linux
+    volumes:
+      - ./code:/workspace
+      - ./scripts:/scripts
+    working_dir: /workspace
+    command: tail -f /dev/null
+    networks:
+      - linux-book-network
+
+networks:
+  linux-book-network:
+    driver: bridge
+

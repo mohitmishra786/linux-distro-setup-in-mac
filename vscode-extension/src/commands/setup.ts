@@ -3,18 +3,12 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { checkDockerRunning, startContainers } from '../utils/docker';
 import { getOutputChannel } from './compileRun';
-import { showValidationErrorIfNeeded } from '../utils/validation';
-import { getConfig } from '../utils/config';
+import { getBundledPath } from '../utils/config';
 
 export async function setupDistributions(): Promise<void> {
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();
-
-    // Validate DistroLab installation first
-    if (!(await showValidationErrorIfNeeded())) {
-        return;
-    }
 
     // Check Docker
     if (!(await checkDockerRunning())) {
@@ -40,8 +34,7 @@ export async function setupDistributions(): Promise<void> {
     channel.appendLine('');
 
     // Execute setup script via Makefile with progress tracking
-    const config = getConfig();
-    const distroLabPath = config.distroLabPath;
+    const bundledPath = getBundledPath();
 
     // Show progress with real-time streaming
     await vscode.window.withProgress({
@@ -56,7 +49,7 @@ export async function setupDistributions(): Promise<void> {
             
             // Execute make setup directly with real-time streaming
             return new Promise<void>((resolve) => {
-                const childProcess = spawn('make', ['setup'], { cwd: distroLabPath, shell: true });
+                const childProcess = spawn('make', ['setup'], { cwd: bundledPath, shell: true });
                 let currentDistro = 0;
 
                 childProcess.stdout?.on('data', (data: Buffer) => {
@@ -107,4 +100,3 @@ export async function setupDistributions(): Promise<void> {
         }
     });
 }
-

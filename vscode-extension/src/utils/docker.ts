@@ -2,8 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { getConfig } from './config';
-import { showValidationErrorIfNeeded } from './validation';
+import { getBundledPath } from './config';
 
 const execAsync = promisify(exec);
 
@@ -26,18 +25,12 @@ export async function checkContainersRunning(): Promise<boolean> {
 }
 
 export async function startContainers(): Promise<boolean> {
-    // Validate DistroLab installation first
-    if (!(await showValidationErrorIfNeeded())) {
-        return false;
-    }
-
-    const config = getConfig();
-    const distroLabPath = config.distroLabPath;
-    const dockerComposePath = path.join(distroLabPath, 'docker-compose.yml');
+    const bundledPath = getBundledPath();
+    const dockerComposePath = path.join(bundledPath, 'docker-compose.yml');
 
     try {
         vscode.window.showInformationMessage('Starting Docker containers...');
-        await execAsync(`docker-compose -f "${dockerComposePath}" up -d`, { cwd: distroLabPath });
+        await execAsync(`docker-compose -f "${dockerComposePath}" up -d`, { cwd: bundledPath });
         vscode.window.showInformationMessage('Docker containers started successfully');
         return true;
     } catch (error: any) {
@@ -47,18 +40,12 @@ export async function startContainers(): Promise<boolean> {
 }
 
 export async function stopContainers(): Promise<boolean> {
-    // Validate DistroLab installation first
-    if (!(await showValidationErrorIfNeeded())) {
-        return false;
-    }
-
-    const config = getConfig();
-    const distroLabPath = config.distroLabPath;
-    const dockerComposePath = path.join(distroLabPath, 'docker-compose.yml');
+    const bundledPath = getBundledPath();
+    const dockerComposePath = path.join(bundledPath, 'docker-compose.yml');
 
     try {
         vscode.window.showInformationMessage('Stopping Docker containers...');
-        await execAsync(`docker-compose -f "${dockerComposePath}" stop`, { cwd: distroLabPath });
+        await execAsync(`docker-compose -f "${dockerComposePath}" stop`, { cwd: bundledPath });
         vscode.window.showInformationMessage('Docker containers stopped');
         return true;
     } catch (error: any) {
@@ -66,4 +53,3 @@ export async function stopContainers(): Promise<boolean> {
         return false;
     }
 }
-

@@ -1,10 +1,8 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
-import { executeScript, executeScriptStream } from '../utils/scripts';
+import { executeScriptStream, prepareSourceFile } from '../utils/scripts';
 import { checkDockerRunning, checkContainersRunning, startContainers } from '../utils/docker';
 import { Distribution } from '../types/distro';
-import { getConfig, getWorkspaceRoot } from '../utils/config';
-import { showValidationErrorIfNeeded } from '../utils/validation';
+import { getConfig } from '../utils/config';
 
 let outputChannel: vscode.OutputChannel | undefined;
 
@@ -19,11 +17,6 @@ export async function compileRun(distribution?: Distribution): Promise<void> {
     const channel = getOutputChannel();
     channel.show(true);
     channel.clear();
-
-    // Validate workspace first
-    if (!(await showValidationErrorIfNeeded())) {
-        return;
-    }
 
     // Check Docker
     if (!(await checkDockerRunning())) {
@@ -53,20 +46,24 @@ export async function compileRun(distribution?: Distribution): Promise<void> {
     }
 
     const filePath = activeEditor.document.uri.fsPath;
-    const root = getWorkspaceRoot();
+    const fileName = activeEditor.document.fileName;
     
-    if (!root) {
-        vscode.window.showErrorMessage('No workspace folder open');
+    // Save the file first
+    await activeEditor.document.save();
+    
+    // Copy file to bundled code directory and get relative path
+    let relativePath: string;
+    try {
+        relativePath = prepareSourceFile(filePath);
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Failed to prepare source file: ${error.message}`);
         return;
     }
-
-    // Get relative path from workspace root
-    const relativePath = path.relative(root, filePath);
     
     // Determine distribution
     const distro = distribution || getConfig().defaultDistro;
 
-    channel.appendLine(`Compiling and running: ${relativePath}`);
+    channel.appendLine(`Compiling and running: ${fileName}`);
     channel.appendLine(`Distribution: ${distro}`);
     channel.appendLine('');
 
@@ -130,11 +127,6 @@ export async function testAll(): Promise<void> {
     channel.show(true);
     channel.clear();
 
-    // Validate workspace first
-    if (!(await showValidationErrorIfNeeded())) {
-        return;
-    }
-
     // Check Docker
     if (!(await checkDockerRunning())) {
         vscode.window.showErrorMessage('Docker is not running. Please start Docker Desktop.');
@@ -163,16 +155,21 @@ export async function testAll(): Promise<void> {
     }
 
     const filePath = activeEditor.document.uri.fsPath;
-    const root = getWorkspaceRoot();
+    const fileName = activeEditor.document.fileName;
     
-    if (!root) {
-        vscode.window.showErrorMessage('No workspace folder open');
+    // Save the file first
+    await activeEditor.document.save();
+    
+    // Copy file to bundled code directory and get relative path
+    let relativePath: string;
+    try {
+        relativePath = prepareSourceFile(filePath);
+    } catch (error: any) {
+        vscode.window.showErrorMessage(`Failed to prepare source file: ${error.message}`);
         return;
     }
 
-    const relativePath = path.relative(root, filePath);
-
-    channel.appendLine(`Testing across all distributions: ${relativePath}`);
+    channel.appendLine(`Testing across all distributions: ${fileName}`);
     channel.appendLine('');
 
     const distributions = [
@@ -236,4 +233,3 @@ export async function testAll(): Promise<void> {
         }
     });
 }
-

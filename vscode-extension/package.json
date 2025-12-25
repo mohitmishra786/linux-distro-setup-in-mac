@@ -2,7 +2,7 @@
   "name": "distrolab",
   "displayName": "DistroLab",
   "description": "Test your code across 16 Linux distributions using Docker. Supports C, C++, Rust, Go, and more.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "publisher": "mohitmishra",
   "license": "MIT",
   "repository": {
@@ -65,10 +65,6 @@
       {
         "command": "distrolab.stopContainers",
         "title": "DistroLab: Stop Docker Containers"
-      },
-      {
-        "command": "distrolab.configurePath",
-        "title": "DistroLab: Configure Installation Path"
       }
     ],
     "menus": {
@@ -100,21 +96,6 @@
     "configuration": {
       "title": "DistroLab",
       "properties": {
-        "distrolab.distroLabPath": {
-          "type": "string",
-          "default": "",
-          "description": "Full path to your linux-distro-setup-in-mac directory (e.g., /Users/yourname/Projects/linux-distro-setup-in-mac)"
-        },
-        "distrolab.dockerComposePath": {
-          "type": "string",
-          "default": "./docker-compose.yml",
-          "description": "[Advanced] Relative path to docker-compose.yml from DistroLab directory"
-        },
-        "distrolab.scriptsPath": {
-          "type": "string",
-          "default": "./scripts",
-          "description": "[Advanced] Relative path to scripts directory from DistroLab directory"
-        },
         "distrolab.defaultDistro": {
           "type": "string",
           "default": "ubuntu",
